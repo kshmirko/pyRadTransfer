@@ -1,0 +1,1 @@
+/Users/kshmirko/Documents/PROGS/Fortran/SSRT/GETMOM.f

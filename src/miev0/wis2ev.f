@@ -1,0 +1,20 @@
+      SUBROUTINE WISCOMBE2EVANS(N, WISC, EVANS)
+CF2PY INTENT(IN)    N, WISC
+CF2PY INTENT(OUT)    EVANS
+      REAL*8        WISC(0:N, 4)
+      REAL*8        EVANS(0:N, 6)
+      REAL*8        NORM, FACTOR
+      INTEGER       I, N
+      NORM = WISC(0,1)+WISC(0,2)
+  
+      DO I=0, N
+        FACTOR = DBLE(2*I+1)
+        EVANS(I,1) = (WISC(I,1)+WISC(I,2))/NORM*FACTOR
+        EVANS(I,2) = (WISC(I,2)-WISC(I,1))/NORM*FACTOR
+        EVANS(I,3) = 2.0D0*WISC(I,3)/NORM*FACTOR
+        EVANS(I,4) = 2.0D0*WISC(I,4)/NORM*FACTOR
+        EVANS(I,5) = EVANS(I,1)
+        EVANS(I,6) = EVANS(I,3)
+      END DO 
+  
+      END SUBROUTINE WISCOMBE2EVANS
