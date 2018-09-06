@@ -29,14 +29,16 @@ def get_ss_downward_intensity(phi, theta, theta0, cumtau,\
     
     I = np.zeros_like(umu)
     
-    fbeam = 1.0/umu0
-    PF = [Legendre(pmoms[i,:]) for i in range(pmoms.shape[0])]
+    fbeam = 1000.0/umu0
+   
+    #print(len(pmoms))
+    PF = [Legendre(pmoms[i]) for i in range(len(pmoms))]
     
     for i, e in enumerate(umu):
         th0 = e*umu0+\
                     np.sqrt(1.0-e*e)*np.sqrt(1.0-umu0*umu0)*uphi[i]
         
-        phase = np.array([PF[j](th0) for j in range(cumtau.shape[0])])
+        phase = np.array([PF[j](th0) for j in range(cumtau.shape[0])])/2.0 # in polradtran phase function normalized to 2.0
         #print(phase)
         I[i] = sinsca(0.000001, 1, phase, ssas, cumtau, -e, umu0,\
             cumtau[-1], fbeam, np.pi)
@@ -122,7 +124,7 @@ def load_atmos(layfile):
     # вычисляем кумулятивную оптическую толщу
     #cumTau=np.r_[0.0, -cumtrapz(LayExt, H)]
     cumTau=np.r_[np.cumsum(LayExt)]
-    return cumTau, np.array(LayP), np.array(LaySSA)
+    return cumTau, LayP, np.array(LaySSA)
         
     
 def load_scafile(scafile):
@@ -206,7 +208,7 @@ def test():
     
     import pylab as plt
     
-    print(np.c_[uphi64*theta64, I])
+    #print(np.c_[uphi64*theta64, I])
     plt.plot(uphi64*theta64, I)
     
     plt.show()

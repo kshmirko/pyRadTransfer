@@ -5,7 +5,7 @@ from ssrt.singlescat import run_model
 from rt3 import RT3
 from atmos import make_alt
 import matplotlib.pyplot as plt
-from numpy import savez_compressed, load, abs, argmin
+from numpy import savez_compressed, load, abs, argmin, pi
 
 @click.group()
 def main():
@@ -27,8 +27,8 @@ def ssrt(sza, layfile, datafile):
     Расчет радиационного переноса в приближении однократного рассеяния
     """
     theta, I = run_model(sza, layfile)
-    for i,_ in enumerate(theta):
-        print(f"{theta[i]:7.2f}{I[i]:12.3e}")
+    #for i,_ in enumerate(theta):
+    #    print(f"{theta[i]:7.2f}{I[i]:12.3e}")
         
 
     savez_compressed(datafile, sza=sza, layfile=layfile, theta=theta, I=I)
@@ -48,12 +48,12 @@ def ssrt(sza, layfile, datafile):
 @click.option('--outfile', default='rt3.out',
                 type=click.Path(exists=False), 
                 help='Путь к файлу с результатами расчетов')
-@click.option('--inttype', default='G',
+@click.option('--inttype', default='D',
                 type=click.Choice(['G','D','L']), 
                 help='Способ интегрирования')
 @click.option('--deltam', type=click.Choice(['Y','N']), default='N',
                 help='Delta-M scaling option')
-@click.option('--direct_flux', type=float, default=1.0, 
+@click.option('--direct_flux', type=float, default=1000.0, 
                 help='Поток на акрхней границе атмосферы')
 @click.option('--sza', default=30.0, type=float, 
                 help='Зенитный угол солнца [градусы]')    
@@ -117,6 +117,10 @@ def rt3(nmu, layfile, outfile, inttype, deltam, direct_flux, sza,
     default='prepare.npz',
     help="Имя файла с параметрами")
 def prepare_files(r0, r1, npts, gamma, wl, midx, nmoms, nlays, hpbl, taua, layfile, datafile):
+    """
+    Подготавливает файлы с описанием атмосферы
+    
+    """
     make_alt(r0=r0,
         r1=r1,
         npts=npts,
@@ -128,6 +132,7 @@ def prepare_files(r0, r1, npts, gamma, wl, midx, nmoms, nlays, hpbl, taua, layfi
         wl=wl, 
         hpbl=hpbl, 
         taua=taua)
+
     savez_compressed(datafile,
         taua=taua,
         r0=r0,
@@ -153,15 +158,15 @@ def vizualize(ssrt, rt3, prepare, savef):
     F3 = load(prepare)
     plt.figure()
     plt.semilogy(F1['theta'], F1['I'], label='ssrt')
-    plt.semilogy(F2['theta'], F2['I'], label='rt3')
+    plt.semilogy(F2['theta'], F2['I']/2, label='rt3')
     plt.legend()
     plt.grid(True)
     plt.title(f"sza  ={F1['sza']:4.1f} wl   ={F2['wavelen']:5.3f} tau_a={F3['taua']:5.3f}\n"+
               f"r0   ={F3['r0']:4.2f} r1   ={F3['r1']:4.2f} ɣ   ={F3['gamma']:4.2f}")
     plt.xlabel('Θ, deg.')
     plt.ylabel('Radiance, W/m^2/sr/um')
-#    if not savef is None:
-#        plt.savefig(savef)
+    if not savef is None:
+        plt.savefig(savef)
     
     plt.figure()
     idx1 = argmin(abs(F1['theta']-F1['sza']))
@@ -175,9 +180,7 @@ def vizualize(ssrt, rt3, prepare, savef):
               f"r0   ={F3['r0']:4.2f} r1   ={F3['r1']:4.2f} ɣ   ={F3['gamma']:4.2f}")
     plt.xlabel('Θ, deg.')
     plt.ylabel('Radiance, W/m^2/sr/um')
-    if not savef is None:
-        plt.savefig(savef)
-    else:
+    if  savef is None:
         plt.show()
     F1.close()
     F2.close()

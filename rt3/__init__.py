@@ -3,7 +3,7 @@ from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos
 
 
 def RT3(nmu=32, layfile='layfile.lay', outfile='rt3.out', inttype='D', 
-        deltam='N', direct_flux=1.0, sza=40, galbedo=0.0, wavelen=0.750,
+        deltam='N', direct_flux=1000.0, sza=40, galbedo=0.0, wavelen=0.750,
         numazimuth=2):
     """
     Драйвер для вызова расчетной модели PolRadTran
