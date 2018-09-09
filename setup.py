@@ -35,7 +35,7 @@ miev0=Extension(name='_miev0',
                         'src/miev0/MIEV0.f',
                         'src/miev0/MIEDRV.f',
                         'src/miev0/wis2ev.f',
-                        'src/miev0/trapz.f',
+                        'src/miev0/TRAPZ.f',
                         'src/miev0/MIEDIST.f',
                         'src/miev0/RAYWIS.f',
                         'src/miev0/RAYEV.f'])
