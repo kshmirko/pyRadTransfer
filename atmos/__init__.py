@@ -18,9 +18,12 @@ def taum_wl(wl):
 
 def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101, 
 				gamma=-3.5, midx = 1.4-0.0j, nmoms=30, 
-				nlays=10, wl=0.750, hpbl=3.0, taua=0.1):
+				nlays=10, wl=0.750, hpbl=3.0, taua=0.1, taum=None):
 	Hmol = 7.3354 # столб атмосферы до 100 км
-	extm = taum_wl(wl) / Hmol
+	if taum is None:
+		extm = taum_wl(wl) / Hmol
+	else:
+		extm = taum / Hmol
 	alts = arange(0.0, nlays)
 	ext=trend(alts*1000.0)*extm
 	taum0=trapz(ext, alts)
@@ -34,22 +37,22 @@ def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,
 			exta_i = extinction_aer[i]
 			extm_i = extinction_mol[i]
 			scat_name = f"scat_file{i}"
-			make_scattering_file(fname=scat_name, midx=midx, r0=r0, r1=r1,
+			_, _, omega_tot, _ = make_scattering_file(fname=scat_name, midx=midx, r0=r0, r1=r1,
                          gamma=gamma, npts=npts,
                          wl=wl, taua=exta_i, taum=extm_i,
                          nmoms=nmoms)
-#			print(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'{scat_name}'\n", end='')
+			print(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'{scat_name}'\t{exta_i:7.5f}\t{extm_i:7.5f}\t{omega_tot:4.2f}\n", end='')
 			fout.write(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'{scat_name}'\n")
 		i=extinction_mol.shape[0]-1
 		fout.write(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'           '\n")
 	print(f"Extinction = {extinction_aer}")
 	print(f"taum={-trapz(extinction_mol, altitude):7.3f} of {taum_wl(wl):7.3f}, taua={-trapz(extinction_aer, altitude):7.2f}")
 
-	plt.figure()
-	plt.plot(altitude, extinction_mol, label='mol')
-	plt.plot(altitude, extinction_aer, label='aer')
-	plt.legend()
-	plt.grid(True)
-	plt.savefig('density.png')
+	#plt.figure()
+	#plt.plot(altitude, extinction_mol, label='mol')
+	#plt.plot(altitude, extinction_aer, label='aer')
+	#plt.legend()
+	#plt.grid(True)
+	#plt.savefig('density.png')
 
 

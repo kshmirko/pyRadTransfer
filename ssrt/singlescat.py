@@ -29,7 +29,7 @@ def get_ss_downward_intensity(phi, theta, theta0, cumtau,\
     
     I = np.zeros_like(umu)
     
-    fbeam = 1000.0/umu0
+    fbeam = 1.0
    
     #print(len(pmoms))
     PF = [Legendre(pmoms[i]) for i in range(len(pmoms))]
@@ -40,9 +40,9 @@ def get_ss_downward_intensity(phi, theta, theta0, cumtau,\
         
         phase = np.array([PF[j](th0) for j in range(cumtau.shape[0])])/2.0 # in polradtran phase function normalized to 2.0
         #print(phase)
-        I[i] = sinsca(0.000001, 1, phase, ssas, cumtau, -e, umu0,\
+        I[i] = sinsca(0.00000001, 1, phase, ssas, cumtau, -e, umu0,\
             cumtau[-1], fbeam, np.pi)
-    return I
+    return I/2
     
 
 def load_atmos(layfile):
@@ -192,6 +192,39 @@ def run_model(sza0, layfile):
             pmoms, ssas)
     
     return theta64*uphi64, I#*(np.pi/2.0)
+
+
+def run_model1(sza0, layfile, taua, omegaa, taum):
+    cumtau, pmoms, ssas = load_atmos(layfile)
+    
+    I = LN1(theta64, phi64, sza0, taum, taua, omegaa, pmoms[-2])
+    
+    return theta64*uphi64, I
+
+
+def LN1(theta, phi, theta0, taum, taua, oma,pmomsa):
+    """
+    """
+    uphi = np.cos(np.deg2rad(phi))
+    umu  = np.cos(np.deg2rad(theta))
+    umu0 = np.cos(np.deg2rad(theta0))
+    
+    I = np.zeros_like(umu)
+
+    PFa = Legendre(pmomsa)
+    PFm = Legendre([1.0, 0.0, 0.5])
+
+    if uphi.shape != umu.shape:
+        raise Exception("Arrays uv and uphi must have same shape")
+
+    for i,e in enumerate(umu):
+        uth0 = e*umu0+\
+                    np.sqrt(1.0-e*e)*np.sqrt(1.0-umu0*umu0)*uphi[i]
+        #print(uth0, e)
+        I[i] = 1.0/(4.0*np.abs(umu[i]))*(taum*PFm(uth0)+taua*oma*PFa(uth0))
+
+    return I/np.pi
+
     
 def test():
     cumtau, pmoms, ssas = load_atmos('layfile.lay')

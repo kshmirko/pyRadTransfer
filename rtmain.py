@@ -48,12 +48,12 @@ def ssrt(sza, layfile, datafile):
 @click.option('--outfile', default='rt3.out',
                 type=click.Path(exists=False), 
                 help='Путь к файлу с результатами расчетов')
-@click.option('--inttype', default='D',
+@click.option('--inttype', default='G',
                 type=click.Choice(['G','D','L']), 
                 help='Способ интегрирования')
 @click.option('--deltam', type=click.Choice(['Y','N']), default='N',
                 help='Delta-M scaling option')
-@click.option('--direct_flux', type=float, default=1000.0, 
+@click.option('--direct_flux', type=float, default=1.0, 
                 help='Поток на акрхней границе атмосферы')
 @click.option('--sza', default=30.0, type=float, 
                 help='Зенитный угол солнца [градусы]')    
@@ -105,18 +105,20 @@ def rt3(nmu, layfile, outfile, inttype, deltam, direct_flux, sza,
 @click.option('--nmoms', type=int, default=40, 
                 help='Число коэффициентов Лежандра')
 @click.option('--nlays', type=int, default=10, 
-                help='Количество стоев в 1 км')
+                help='Количество слоев толщиной в 1 км')
 @click.option('--hpbl', type=float, default=3.0, 
                 help='Высота погранслоя')
 @click.option('--taua', type=float, default=0.1, 
                 help='Аэрозольная оптическая толща')
+@click.option('--taum', type=float, default=None, 
+                help='Молекулярная оптическая толща')
 @click.option('--layfile', type=click.Path(exists=False),  
                 help='Имя файла с описанием атмосферы', 
                 required=True)
 @click.option('--datafile',type=click.Path(exists=False),
     default='prepare.npz',
     help="Имя файла с параметрами")
-def prepare_files(r0, r1, npts, gamma, wl, midx, nmoms, nlays, hpbl, taua, layfile, datafile):
+def prepare_files(r0, r1, npts, gamma, wl, midx, nmoms, nlays, hpbl, taua, taum, layfile, datafile):
     """
     Подготавливает файлы с описанием атмосферы
     
@@ -131,7 +133,8 @@ def prepare_files(r0, r1, npts, gamma, wl, midx, nmoms, nlays, hpbl, taua, layfi
         nlays=nlays, 
         wl=wl, 
         hpbl=hpbl, 
-        taua=taua)
+        taua=taua,
+        taum=taum)
 
     savez_compressed(datafile,
         taua=taua,
@@ -157,6 +160,28 @@ def vizualize(ssrt, rt3, prepare, savef):
     F2 = load(rt3)
     F3 = load(prepare)
     plt.figure()
+    #print(F1['theta'][:10], F2['theta'][:10])
+    #print(F1['I'][:10], F2['I'][:10])
+    
+    #plt.semilogy(F1['theta'], F1['I'], label='ssrt')
+    #plt.semilogy(F2['theta'][::-1], F2['I'][::-1]/2, label='rt3')
+    plt.plot(F2['theta'][::-1], 2*F1['I']/F2['I'][::-1], label='ss/rt3')
+
+    plt.legend()
+    plt.grid(True)
+    plt.title(f"sza  ={F1['sza']:4.1f} wl   ={F2['wavelen']:5.3f} tau_a={F3['taua']:5.3f}\n"+
+              f"r0   ={F3['r0']:4.2f} r1   ={F3['r1']:4.2f} ɣ   ={F3['gamma']:4.2f}")
+    plt.xlabel('Θ, deg.')
+    plt.ylabel('Radiance, W/m^2/sr/um')
+    if not savef is None:
+        #save_fig = f"{savef}_g{F2['galbedo']:4.2f}_t{F2['taua']:5.3f}_ratio.png"
+        save_fig=f"{savef}_L.png"
+        plt.savefig(save_fig)
+    
+    plt.figure()
+    idx1 = argmin(abs(F1['theta']-F1['sza']))
+    idx2 = argmin(abs(F2['theta']-F2['sza']))
+    print(idx1, idx2, F1['I'][idx1], F2['theta'][idx2] )
     plt.semilogy(F1['theta'], F1['I'], label='ssrt')
     plt.semilogy(F2['theta'], F2['I']/2, label='rt3')
     plt.legend()
@@ -165,23 +190,12 @@ def vizualize(ssrt, rt3, prepare, savef):
               f"r0   ={F3['r0']:4.2f} r1   ={F3['r1']:4.2f} ɣ   ={F3['gamma']:4.2f}")
     plt.xlabel('Θ, deg.')
     plt.ylabel('Radiance, W/m^2/sr/um')
-    if not savef is None:
-        plt.savefig(savef)
-    
-    plt.figure()
-    idx1 = argmin(abs(F1['theta']-F1['sza']))
-    idx2 = argmin(abs(F2['theta']-F2['sza']))
-    print(idx1, idx2 )
-    plt.semilogy(F1['theta'], F1['I']/F1['I'][idx1], label='ssrt')
-    plt.semilogy(F2['theta'], F2['I']/F2['I'][idx2], label='rt3')
-    plt.legend()
-    plt.grid(True)
-    plt.title(f"sza  ={F1['sza']:4.1f} wl   ={F2['wavelen']:5.3f} tau_a={F3['taua']:5.3f}\n"+
-              f"r0   ={F3['r0']:4.2f} r1   ={F3['r1']:4.2f} ɣ   ={F3['gamma']:4.2f}")
-    plt.xlabel('Θ, deg.')
-    plt.ylabel('Radiance, W/m^2/sr/um')
     if  savef is None:
         plt.show()
+    else:
+        save_fig = f"{savef}_LN.png"
+        plt.savefig(save_fig)
+        pass
     F1.close()
     F2.close()
     F3.close()

@@ -52,6 +52,6 @@ if __name__ == "__main__":
           author_email  = "shmirko.konstantin(at)gmail.com",
           version       = "0.1.0",
           license       = "GPL",
-          packages      = ['ssrt', 'disort','rt3', 'atmos'],
+          packages      = ['ssrt', 'disort','rt3', 'atmos', 'miev0'],
           ext_modules = [ssrt, disort, rt3, miev0, atmos],
           )
