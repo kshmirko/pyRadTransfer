@@ -1,4 +1,4 @@
-from _miev0 import distr, rayev, wiscombe2evans, makescatfile
+from _miev0 import distr, rayev, wiscombe2evans, makescatfile, makelayfl, gettaum
 from numpy import linspace, pi
 
 

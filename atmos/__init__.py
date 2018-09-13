@@ -1,6 +1,6 @@
 from _stdatm import stdatm2, stdatm1
 from numpy import array, linspace, arange, trapz, exp, zeros_like
-from miev0 import make_scattering_file, makescatfile
+from miev0 import make_scattering_file, makescatfile, gettaum, makelayfl, gettaum
 import pylab as plt
 
 def trend(z, t0=288.0, p0=101290.0):
@@ -20,19 +20,22 @@ def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,
 				gamma=-3.5, midx = 1.4-0.0j, nmoms=30, 
 				nlays=10, wl=0.750, hpbl=3.0, taua=0.1, taum=None):
 	Hmol = 7.3354 
+	alts = arange(nlays, dtype='float')
+	tr = trend(alts*1000.0)
+
 	if taum is None:
 		extm = taum_wl(wl) / Hmol
 	else:
 		extm = taum / Hmol
-	alts = arange(nlays, -1.0, -1, dtype='float')
-	print(alts)
-	ext=trend(alts*1000.0)*extm
-	taum0=-trapz(ext, alts)
-	
+
+	ext=tr*extm
+
+	taum0=trapz(ext, alts)
+	print(taum0)
 	exta = taua/hpbl
-	altitude = alts
+	altitude = alts[::-1]
 	extinction_aer = exp(-altitude/hpbl)*exta
-	extinction_mol = ext
+	extinction_mol = ext[::-1]
 	with open(layfname, 'wt') as fout:
 		for i in range(extinction_mol.shape[0]-1):
 			exta_i = extinction_aer[i]
@@ -51,7 +54,7 @@ def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,
 		i=extinction_mol.shape[0]-1
 		fout.write(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'           '\n")
 	print(f"Extinction = {extinction_aer}")
-	print(f"taum={-trapz(extinction_mol, altitude):7.3f} of {taum_wl(wl):7.3f}, taua={-trapz(extinction_aer, altitude):7.2f}")
+	print(f"taum={taum0:7.3f} of {taum_wl(wl):7.3f}, taua={taua:7.2f}")
 
 	#plt.figure()
 	#plt.plot(altitude, extinction_mol, label='mol')
@@ -101,5 +104,14 @@ def prepare_work_files(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,\
 	print(f"Extinction = {extinction_aer}")
 	print(f"taum={-trapz(extinction_mol, altitude):7.3f} of {taum_wl(wl):7.3f}, taua={-trapz(extinction_aer, altitude):7.2f}")
 
+
+def prepare_work_file(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,\
+				gamma=-3.5, midx = 1.4-0.0j, nmoms=30, 
+				wl=0.750, taua=0.1, taum=None):
+	
+	if taum is None:
+		taum = gettaum(wl)
+
+	makelayfl(layfname, midx, r0, r1, gamma, npts, wl, taua, taum, nmoms)
 
 

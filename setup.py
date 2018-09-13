@@ -27,7 +27,8 @@ rt3=Extension(name='_rt3',
                         'src/rt3/radscat3.f',
                         'src/rt3/radtran3.f',
                         'src/rt3/radutil3.f',
-                        'src/rt3/rt3subs.f'])
+                        'src/rt3/rt3subs.f',
+                        'src/rt3/Driver.f'])
 
 miev0=Extension(name='_miev0',
             sources = ['src/miev0/ErrPack.f',
@@ -39,7 +40,9 @@ miev0=Extension(name='_miev0',
                         'src/miev0/MIEDIST.f',
                         'src/miev0/RAYWIS.f',
                         'src/miev0/RAYEV.f',
-                        'src/miev0/MKSCTFL.f'])
+                        'src/miev0/MKSCTFL.f',
+                        'src/miev0/GETTAUM.f',
+                        'src/miev0/MKLYFL.f'])
 
 atmos=Extension(name='_stdatm',
             sources = ['src/atmos/STDATM.f'])

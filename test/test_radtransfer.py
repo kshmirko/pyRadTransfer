@@ -10,9 +10,61 @@ import matplotlib
 import matplotlib.pyplot as plt
 from ssrt.singlescat import run_model, run_model1
 from rt3 import RT3
-from atmos import make_alt, prepare_work_files
+from atmos import make_alt, prepare_work_files, prepare_work_file
 import numpy as np
 
+def test_0():
+    taua = 0.2
+    taum = None
+    r0   = 0.1
+    r1   = 1.0
+    npts = 101
+    gamma= -3.5
+    layfile = 'atmoslay.lay'
+    midx = 1.5-0.00j
+    nmoms= 40
+    nlays= 15
+    wl   = 0.870
+    hpbl = 3.0
+
+    make_alt(r0=r0,
+        r1=r1,
+        npts=npts,
+        gamma=gamma,
+        layfname=layfile,
+        midx = midx, 
+        nmoms=nmoms, 
+        nlays=nlays, 
+        wl=wl, 
+        hpbl=hpbl, 
+        taua=taua,
+        taum=taum)
+    
+
+    nmu = 32
+    outfile = 'rt3.out'
+    inttype = 'G'
+    deltam  = 'N'
+    
+    sza     = 65.0
+    direct_flux = np.pi*np.cos(np.deg2rad(sza))
+    galbedo = 0.0
+    wavelen = wl
+    numazi  = 2
+    theta_a1, I_a1, Q_a1 = RT3(nmu, layfile, outfile, inttype, deltam, 
+        direct_flux, sza, galbedo, wavelen, numazi)
+
+    prepare_work_file(layfname=layfile, r0=r0, r1=r1, npts=npts,\
+                gamma=gamma, midx = midx, nmoms=nmoms, 
+                wl=wl, taua=taua, taum=taum)
+    outfile='rt3.out1'
+    theta_a2, I_a2, Q_a2 = RT3(nmu, layfile, outfile, inttype, deltam, 
+        direct_flux, sza, galbedo, wavelen, numazi)
+
+    plt.figure()
+    plt.semilogy(theta_a1, I_a1, label='0.0')
+    plt.semilogy(theta_a2, I_a2, label='1.0')
+    plt.legend()
 
 def test_1():
     """
@@ -369,7 +421,7 @@ def main():
     """
     главная функция, вызывает различные тестовые расчеты
     """
-    test_1()
+    test_0()
     #test_3()
     #test_2()
     plt.show()

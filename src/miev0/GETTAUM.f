@@ -1,0 +1,6 @@
+      REAL*8 FUNCTION GETTAUM(WL)
+      REAL*8  WL
+CF2PY INTENT(IN)  WL
+      GETTAUM = 0.008569/(WL**4)*(1.0+0.0113/(WL**2)+0.00013/(WL**4))
+      RETURN
+      END
