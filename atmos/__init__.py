@@ -1,6 +1,6 @@
 from _stdatm import stdatm2, stdatm1
 from numpy import array, linspace, arange, trapz, exp, zeros_like
-from miev0 import make_scattering_file
+from miev0 import make_scattering_file, makescatfile
 import pylab as plt
 
 def trend(z, t0=288.0, p0=101290.0):
@@ -19,7 +19,7 @@ def taum_wl(wl):
 def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101, 
 				gamma=-3.5, midx = 1.4-0.0j, nmoms=30, 
 				nlays=10, wl=0.750, hpbl=3.0, taua=0.1, taum=None):
-	Hmol = 7.3354 # столб атмосферы до 100 км
+	Hmol = 7.3354 
 	if taum is None:
 		extm = taum_wl(wl) / Hmol
 	else:
@@ -38,10 +38,14 @@ def make_alt(layfname='atmos.lay', r0=0.1, r1=1.0, npts=101,
 			exta_i = extinction_aer[i]
 			extm_i = extinction_mol[i]
 			scat_name = f"scat_file{i}"
-			_, _, omega_tot, _ = make_scattering_file(fname=scat_name, midx=midx, r0=r0, r1=r1,
+			_, _, omega_tot, _ = makescatfile(fname=scat_name, midx=midx, r0=r0, r1=r1,
                          gamma=gamma, npts=npts,
                          wl=wl, taua=exta_i, taum=extm_i,
                          nmoms=nmoms)
+			#_, _, omega_tot, _ = make_scattering_file(fname=scat_name, midx=midx, r0=r0, r1=r1,
+            #             gamma=gamma, npts=npts,
+            #             wl=wl, taua=exta_i, taum=extm_i,
+            #             nmoms=nmoms)
 			print(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'{scat_name}'\t{exta_i:7.5f}\t{extm_i:7.5f}\t{omega_tot:4.2f}\n", end='')
 			fout.write(f"{altitude[i]:7.2f}{0.0:7.2f}{0.0:7.3f}\t'{scat_name}'\n")
 		i=extinction_mol.shape[0]-1

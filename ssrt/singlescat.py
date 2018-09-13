@@ -29,7 +29,7 @@ def get_ss_downward_intensity(phi, theta, theta0, cumtau,\
     
     I = np.zeros_like(umu)
     
-    fbeam = 1.0
+    fbeam = np.pi/umu0
    
     #print(len(pmoms))
     PF = [Legendre(pmoms[i]) for i in range(len(pmoms))]
@@ -213,7 +213,8 @@ def LN1(theta, phi, theta0, taum, taua, oma,pmomsa):
 
     PFa = Legendre(pmomsa)
     PFm = Legendre([1.0, 0.0, 0.5])
-
+    mu = np.linspace(-1, 1, 1000)
+    print(np.trapz(PFa(mu), mu))
     if uphi.shape != umu.shape:
         raise Exception("Arrays uv and uphi must have same shape")
 

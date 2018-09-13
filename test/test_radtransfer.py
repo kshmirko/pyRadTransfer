@@ -11,14 +11,15 @@ import matplotlib.pyplot as plt
 from ssrt.singlescat import run_model, run_model1
 from rt3 import RT3
 from atmos import make_alt, prepare_work_files
+import numpy as np
 
 
 def test_1():
     """
     Test polradtran
     """
-    taua = 0.7
-    taum = 0.0
+    taua = 0.1
+    taum = None
     r0   = 0.1
     r1   = 1.0
     npts = 101
@@ -30,23 +31,7 @@ def test_1():
     wl   = 0.870
     hpbl = 3.0
 
-    prepare_work_files(r0=r0,
-        r1=r1,
-        npts=npts,
-        gamma=gamma,
-        layfname=layfile,
-        midx = midx, 
-        nmoms=nmoms, 
-        nlays=nlays, 
-        wl=wl,  
-        exta=taua/hpbl,
-        taum=taum,
-        H=[2, hpbl+1])
-
-
-                
-
-    # make_alt(r0=r0,
+    # prepare_work_files(r0=r0,
     #     r1=r1,
     #     npts=npts,
     #     gamma=gamma,
@@ -54,26 +39,73 @@ def test_1():
     #     midx = midx, 
     #     nmoms=nmoms, 
     #     nlays=nlays, 
-    #     wl=wl, 
-    #     hpbl=hpbl, 
+    #     wl=wl,  
     #     taua=taua,
-    #     taum=taum)
+    #     taum=taum,
+    #     H=[2, hpbl+1])
+
+
+                
+    make_alt(r0=r0,
+        r1=r1,
+        npts=npts,
+        gamma=gamma,
+        layfname=layfile,
+        midx = midx, 
+        nmoms=nmoms, 
+        nlays=nlays, 
+        wl=wl, 
+        hpbl=hpbl, 
+        taua=taua,
+        taum=taum)
     
 
     nmu = 32
     outfile = 'rt3.out'
     inttype = 'G'
     deltam  = 'N'
-    direct_flux = 1.0
+    
     sza     = 65.0
+    direct_flux = np.pi*np.cos(np.deg2rad(sza))
     galbedo = 0.0
     wavelen = wl
     numazi  = 2
     theta_a, I_a, Q_a = RT3(nmu, layfile, outfile, inttype, deltam, 
         direct_flux, sza, galbedo, wavelen, numazi)
 
-    th_a, I_a1 = run_model1(sza, layfile, taua, 0.89, 0.0)
+    #th_a1, I_a1 = run_model(sza, layfile)
+    th_a1, I_a1 = run_model1(sza, layfile, taua, 0.89, 0.015)
 
+    taua=0.3
+    make_alt(r0=r0,
+        r1=r1,
+        npts=npts,
+        gamma=gamma,
+        layfname=layfile,
+        midx = midx, 
+        nmoms=nmoms, 
+        nlays=nlays, 
+        wl=wl, 
+        hpbl=hpbl, 
+        taua=taua,
+        taum=taum)
+    
+
+    nmu = 32
+    outfile = 'rt3.out'
+    inttype = 'G'
+    deltam  = 'N'
+    
+    sza     = 65.0
+    direct_flux = np.pi*np.cos(np.deg2rad(sza))
+    galbedo = 0.0
+    wavelen = wl
+    numazi  = 2
+    theta_a, I_a2, Q_a = RT3(nmu, layfile, outfile, inttype, deltam, 
+        direct_flux, sza, galbedo, wavelen, numazi)
+
+    th_a3, I_a3 = run_model1(sza, layfile, taua, 0.89, 0.015)
+    #th_a3, I_a3 = run_model(sza, layfile)
     # taum = None
     # taua = 0.0
     # make_alt(r0=r0,
@@ -118,7 +150,9 @@ def test_1():
 
     plt.figure()
     plt.semilogy(theta_a, I_a, label='$L_{aer}(0)$')
-    plt.semilogy(th_a, I_a1, label='$L_{aer1}(0)$')
+    plt.semilogy(th_a1, I_a1, label='$L_{aer1}(0)$')
+    plt.semilogy(theta_a, I_a2, label='$L_{aer}(0)$')
+    plt.semilogy(th_a3, I_a3, label='$L_{aer1}(0)$')
     #plt.semilogy(theta_m, I_m, label='$L_{mol}(0)$')
     #plt.semilogy(th_m, I_m1, label='$L_{mol1}(0)$')
     #plt.semilogy(theta_am, I_am, label='$L_{tot}(0)$')
@@ -128,8 +162,8 @@ def test_1():
     plt.grid(True)
     plt.figure()
     print(f"theta_a = {theta_a}")
-    print(f"th_a = {th_a}")
-    plt.plot(theta_a, I_a1[::-1]/I_a)
+    print(f"th_a = {th_a1}")
+    plt.plot(theta_a, I_a3[::-1]/I_a2)
     plt.grid()
     
     
@@ -335,7 +369,8 @@ def main():
     """
     главная функция, вызывает различные тестовые расчеты
     """
-    test_3()
+    test_1()
+    #test_3()
     #test_2()
     plt.show()
 

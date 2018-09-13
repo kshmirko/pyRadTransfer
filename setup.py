@@ -38,7 +38,8 @@ miev0=Extension(name='_miev0',
                         'src/miev0/TRAPZ.f',
                         'src/miev0/MIEDIST.f',
                         'src/miev0/RAYWIS.f',
-                        'src/miev0/RAYEV.f'])
+                        'src/miev0/RAYEV.f',
+                        'src/miev0/MKSCTFL.f'])
 
 atmos=Extension(name='_stdatm',
             sources = ['src/atmos/STDATM.f'])
