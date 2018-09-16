@@ -28,24 +28,36 @@ rt3=Extension(name='_rt3',
                         'src/rt3/radtran3.f',
                         'src/rt3/radutil3.f',
                         'src/rt3/rt3subs.f',
-                        'src/rt3/Driver.f'])
+                        'src/rt3/Driver.f',
+                        'src/rt3/ErrPack.f',
+                        'src/rt3/RDI1MACH.f',
+                        'src/rt3/MIEV0.f',
+                        'src/rt3/MIEDRV.f',
+                        'src/rt3/wis2ev.f',
+                        'src/rt3/TRAPZ.f',
+                        'src/rt3/MIEDIST.f',
+                        'src/rt3/RAYWIS.f',
+                        'src/rt3/RAYEV.f',
+                        'src/rt3/MKSCTFL.f',
+                        'src/rt3/GETTAUM.f',
+                        'src/rt3/MKLYFL.f'])
 
-miev0=Extension(name='_miev0',
-            sources = ['src/miev0/ErrPack.f',
-                        'src/miev0/RDI1MACH.f',
-                        'src/miev0/MIEV0.f',
-                        'src/miev0/MIEDRV.f',
-                        'src/miev0/wis2ev.f',
-                        'src/miev0/TRAPZ.f',
-                        'src/miev0/MIEDIST.f',
-                        'src/miev0/RAYWIS.f',
-                        'src/miev0/RAYEV.f',
-                        'src/miev0/MKSCTFL.f',
-                        'src/miev0/GETTAUM.f',
-                        'src/miev0/MKLYFL.f'])
+# miev0=Extension(name='_miev0',
+#             sources = ['src/miev0/ErrPack.f',
+#                         'src/miev0/RDI1MACH.f',
+#                         'src/miev0/MIEV0.f',
+#                         'src/miev0/MIEDRV.f',
+#                         'src/miev0/wis2ev.f',
+#                         'src/miev0/TRAPZ.f',
+#                         'src/miev0/MIEDIST.f',
+#                         'src/miev0/RAYWIS.f',
+#                         'src/miev0/RAYEV.f',
+#                         'src/miev0/MKSCTFL.f',
+#                         'src/miev0/GETTAUM.f',
+#                         'src/miev0/MKLYFL.f'])
 
-atmos=Extension(name='_stdatm',
-            sources = ['src/atmos/STDATM.f'])
+# atmos=Extension(name='_stdatm',
+#             sources = ['src/atmos/STDATM.f'])
 
 
 if __name__ == "__main__":
@@ -56,6 +68,10 @@ if __name__ == "__main__":
           author_email  = "shmirko.konstantin(at)gmail.com",
           version       = "0.1.0",
           license       = "GPL",
-          packages      = ['ssrt', 'disort','rt3', 'atmos', 'miev0'],
-          ext_modules = [ssrt, disort, rt3, miev0, atmos],
+          packages      = ['ssrt', 'disort','rt3', 
+                            #'atmos', 'miev0',
+                            ],
+          ext_modules = [ssrt, disort, rt3, 
+                          #miev0, atmos,
+                          ],
           )

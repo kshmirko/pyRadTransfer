@@ -1,45 +1,54 @@
-from _rt3 import rt3
+from _rt3 import run1
 from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos
+import matplotlib.pyplot as plt
 
+class RT3:
 
-def RT3(nmu=32, layfile='layfile.lay', outfile='rt3.out', inttype='D', 
-        deltam='N', direct_flux=1000.0, sza=40, galbedo=0.0, wavelen=0.750,
-        numazimuth=2):
-    """
-    Драйвер для вызова расчетной модели PolRadTran
-        nmu         -   количество отсчетов косинуса зенитного угла
-        layfile     -   имя файла с описанием структуры атмосферы
-        outfile     -   имя выходного файла с результатами расчетов
-        inttype     -   метод интегрирования
-                        'G' -   Гаусса
-                        'D' -   двойного Гаусса
-                        'L' -   Лобатто
-        deltam      -   включение/выключение режима масштабирования 
-                        фазовой функции
-                        'Y' -   включение
-                        'N' -   выключение
-        direct_flux -   поток на верхней границе атмосферы
-        sza         -   зенитный угол солнца [градусы]
-        galbedo     -   альбедо подстилающей поверхности
-        wavelen     -   длина волны падающего излучения
-        numazimuth  -   количество азимутальных углов для вывода
-    """
+    def __init__(self, sza=40, nummu = 32, galbedo = 0.0):
+        self.layf = 'atmos.lay'
+        self.outf = 'rt3.out'
+        self.midx = 1.5-0.0j
+        self.r0 = 0.1
+        self.r1 = 1.0
+        self.gamma = -3.5
+        self.npts = 101
+        self.wl = 0.75
+        self.taua = 0.1
+        self.nmoms = 40
+        self.direct_mu = cos(deg2rad(sza))
+        self.quad_type = 'G'
+        self.deltam = 'N'
+        self.ground_albedo = galbedo
+        self.nummu = nummu
+
     
-    mu = zeros(2*nmu)
-    src_code = 1 # solar radiation only
-    rt3(2, 4, mu, src_code, layfile, outfile, inttype, deltam, direct_flux,
-        cos(deg2rad(sza)), 0.0, 'L', galbedo, 0.0+0j, 0.0, wavelen,
-         'W', 'IQ', numazimuth)
-         
-    r = loadtxt(outfile, skiprows=11)
-    idx1=(r[:,0]==0)&(r[:,1]==0)&(r[:,2]>0)
-    idx2=(r[:,0]==0)&(r[:,1]==180)&(r[:,2]>0)
+    def __get_sza(self):
+        return rad2deg(arccos(self.direct_mu))
     
-    sl1 = r[idx1,:]
-    sl2 = r[idx2,:]
     
-    d = vstack((sl2, sl1[::-1,:]))
-    phi=cos(deg2rad(d[:,1])) 
-    umu = phi*rad2deg(arccos(d[:,2]))
-    return umu, d[:,3], d[:,4]
+    def __set_sza(self, sza):
+        self.direct_mu = cos(deg2rad(sza))
+
+    sza = property(__get_sza, __set_sza)
     
+    def run(self):
+
+        self.mu, self.Iv, self.Qv = run1(self.layf, self.outf, self.midx, 
+            self.r0, self.r1, self.gamma, self.npts, self.wl, self.taua,
+            self.nmoms, self.direct_mu, self.quad_type, self.deltam,
+            self.ground_albedo, self.nummu)
+                                                                                          
+    def plotI(self):
+        caption = "$"+f"I({self.sza})"+"$"
+        plt.semilogy(self.mu, self.Iv, label=caption)
+        
+
+    def plotQ(self):
+        caption = "$"+f"Q({self.sza})"+"$"
+        plt.plot(self.mu, self.Iv)
+        
+    def show(self):
+        plt.legend()
+        plt.grid(True)
+        plt.show()                                                           
+                                
