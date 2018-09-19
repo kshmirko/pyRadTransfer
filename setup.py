@@ -40,7 +40,16 @@ rt3=Extension(name='_rt3',
                         'src/rt3/RAYEV.f',
                         'src/rt3/MKSCTFL.f',
                         'src/rt3/GETTAUM.f',
-                        'src/rt3/MKLYFL.f'])
+                        'src/rt3/MKLYFL.f',
+                        'src/rt3/MKDISTR.f',
+                        'src/rt3/MKFILES.f',
+                        'src/rt3/SCTFLE.f',
+                        'src/rt3/Run.f',
+                        'src/rt3/RUNRT3.f',
+                        'src/rt3/LINTERP.f',
+                        'src/rt3/RDMEAS.f'
+                        ])
+
 
 # miev0=Extension(name='_miev0',
 #             sources = ['src/miev0/ErrPack.f',

@@ -1,4 +1,4 @@
-from _rt3 import run1
+from _rt3 import run1, run2
 from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos
 import matplotlib.pyplot as plt
 
@@ -20,6 +20,7 @@ class RT3:
         self.deltam = 'N'
         self.ground_albedo = galbedo
         self.nummu = nummu
+        self.ssa_a = 1.0
 
     
     def __get_sza(self):
@@ -35,6 +36,13 @@ class RT3:
 
         self.mu, self.Iv, self.Qv = run1(self.layf, self.outf, self.midx, 
             self.r0, self.r1, self.gamma, self.npts, self.wl, self.taua,
+            self.nmoms, self.direct_mu, self.quad_type, self.deltam,
+            self.ground_albedo, self.nummu)
+
+    def run1(self):
+
+        self.mu, self.Iv, self.Qv = run2(self.layf, self.outf, self.midx, 
+            self.r0, self.r1, self.gamma, self.npts, self.wl, self.taua, self.ssa_a,
             self.nmoms, self.direct_mu, self.quad_type, self.deltam,
             self.ground_albedo, self.nummu)
                                                                                           
