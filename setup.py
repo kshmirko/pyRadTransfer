@@ -47,7 +47,9 @@ rt3=Extension(name='_rt3',
                         'src/rt3/Run.f',
                         'src/rt3/RUNRT3.f',
                         'src/rt3/LINTERP.f',
-                        'src/rt3/RDMEAS.f'
+                        'src/rt3/RDMEAS.f',
+                        'src/rt3/LEGVAL.f',
+                        'src/rt3/RunSub.f',
                         ])
 
 

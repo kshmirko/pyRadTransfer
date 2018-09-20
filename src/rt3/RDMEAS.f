@@ -18,7 +18,7 @@ CF2PY INTENT(OUT)   ANG, IV, QV, N
       DO WHILE ((IERR .EQ. 0).AND.(I.LT.MXMEAS))
 
         READ(150, *, IOSTAT=IERR) ANG(I), IV(I), QV(I)
-        PRINT *, ANG(I), IV(I), QV(I), IERR
+C        PRINT *, ANG(I), IV(I), QV(I), IERR
         I=I+1        
       
       ENDDO

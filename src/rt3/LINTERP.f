@@ -181,7 +181,7 @@ C
 
       RETURN
       END
-      SUBROUTINE PWL_VALUE_1D ( ND, XD, YD, NI, XI, YI )
+      SUBROUTINE PWL_VALUE_1D ( ND, XD, YD, NI, XI, YI, LEFT, RIGHT )
 
 C*********************************************************************72
 C
@@ -232,6 +232,7 @@ C
         DOUBLE PRECISION YD(ND)
         DOUBLE PRECISION XI(NI)
         DOUBLE PRECISION YI(NI)
+        DOUBLE PRECISION LEFT, RIGHT
 
         DO I = 1, NI
           YI(I) = 0.0D+00
@@ -251,11 +252,16 @@ C
             T = ( XI(I) - XD(1) ) / ( XD(2) - XD(1) )
             YI(I) = ( 1.0D+00 - T ) * YD(1) + T * YD(2)
 
-          ELSE IF ( XD(ND) .LE. XI(I) ) THEN
+          ELSE IF ( XD(ND) .LE. XI(I))  THEN
 
-            T = ( XI(I) - XD(ND-1) ) / ( XD(ND) - XD(ND-1) )
-            YI(I) = ( 1.0D+00 - T ) * YD(ND-1) + T * YD(ND)
+C             T = ( XI(I) - XD(ND-1) ) / ( XD(ND) - XD(ND-1) )
+C             YI(I) = ( 1.0D+00 - T ) * YD(ND-1) + T * YD(ND)
+            YI(I) = RIGHT
+          ELSE IF ( XI(I) .LE. XD(1))  THEN
 
+C             T = ( XI(I) - XD(ND-1) ) / ( XD(ND) - XD(ND-1) )
+C             YI(I) = ( 1.0D+00 - T ) * YD(ND-1) + T * YD(ND)
+            YI(I) = LEFT
           ELSE
 
             DO K = 2, ND

@@ -213,6 +213,8 @@ CF2PY INTENT(OUT) MU, Iv, Qv
         if ((mu_i>0) .and. (mu_i /= 2.0)) then
           MU(I) = ACOS(mu_i)*(COS(phi_i*0.017453292519943))/
      .              0.017453292519943
+
+C          MU(I) = mu_i*(COS(phi_i*0.017453292519943))
           Iv(I) = I_i
           Qv(I) = Q_i
           I=I+1
