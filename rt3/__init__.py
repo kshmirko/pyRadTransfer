@@ -1,5 +1,5 @@
 from _rt3 import run1, run2
-from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos
+from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos, pi
 import matplotlib.pyplot as plt
 
 class RT3:

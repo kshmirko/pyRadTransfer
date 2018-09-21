@@ -1,22 +1,23 @@
       SUBROUTINE RUNINV(NMOMS, NPTS, MAXMEAS, WL, MIDX, R0, R1, NP, P,
      .                  IDSTR, GROUND_ALBEDO, NWW, WW, TAUE_A, SZA, 
-     .                  DIRECT_FLUX, MEAS_FILE)
+     .                  DIRECT_FLUX, MEAS_FILE, XO, PA1, PA, I2, L0, L1)
 CF2PY INTENT(IN)  NMOMS, NPTS, MAXMEAS, WL, MIDX, R0, R1, NP, P, IDSTR
 CF2PY INTENT(IN)  GROUND_ALBEDO, NWW, WW, TAUE_A, SZA, DIRECT_FLUX
 CF2PY INTENT(IN)  MEAS_FILE
-
+CF2PY INTENT(OUT) XO, PA1, PA, I2, L0, L1
       IMPLICIT NONE
       INTEGER NMOMS, NPTS, NUMMU, MAXMEAS
-      REAL*8 DEG2RAD, RAD2DEG
+      REAL*8 DEG2RAD, RAD2DEG, DELTA
       PARAMETER(NUMMU=32, DEG2RAD=0.017453292519943D0, 
-     .          RAD2DEG=1.0D0/DEG2RAD)
+     .          RAD2DEG=1.0D0/DEG2RAD, DELTA=0.1D0)
 
       REAL*8  X(NPTS), Y(NPTS), WL, PMOM(0:NMOMS, 4), EXT, SCA, ASY, VOL
       INTEGER IERR, IDSTR, I, NM, K, NP, NWW
       COMPLEX*16  MIDX
       REAL*8  SSA_A, R0, R1, P(NP), TAUE_A, TAUE_M, SSAT, 
      .        EV_T(0:NMOMS, 6), DIRECT_FLUX, DIRECT_MU,
-     .        GROUND_ALBEDO, SZA, EV_A(0:NMOMS,6), EV_R(0:NMOMS,6)
+     .        GROUND_ALBEDO, SZA, EV_A(0:NMOMS,6), EV_R(0:NMOMS,6),
+     .        XO(2*NUMMU)
       CHARACTER*64  SCAT_FILE, LAYER_FILE, OUT_FILE, MEAS_FILE
       CHARACTER     QUAD_TYPE*1, DELTAM*1
 
@@ -32,7 +33,7 @@ CF2PY INTENT(IN)  MEAS_FILE
       EXTERNAL RAYEV, WISCOMBE2EVANS
 
       REAL*8  GETTAUM
-      REAL*8  WW(NWW)
+      REAL*8  WW(NWW), SSA_RET
 
 
 C     Fill X and Y with distribution function
@@ -151,9 +152,18 @@ C       PRINT '(10F9.4)', L(5:14), L0(5:14), L1(5:14)
       ENDDO
 C      print '(10F9.4)', PA1
 C      PRINT "('W0(',I2,')',F10.6)", K, SUM(PA*WEIGHT)
-      PRINT "('W1(',I2,')',F10.6)", K, SUM(PA1*WEIGHT)
+C     Интегрирование фазовой функци
+      SSA_RET = SUM(PA1*WEIGHT) 
+      PRINT "('W1(',I2,')',F10.6)", K, SSA_RET
 
+      IF (ABS(SSA_RET - 2.0).LT.DELTA) THEN
+        DO I=1, 2*NUMMU
+          PRINT '(5F10.3)', XI(I), PA1(I), PA(I), L1(I), I2(I)
+        ENDDO
+        EXIT
+      ENDIF
  100  CONTINUE
-
+      XO = XI
+      
       RETURN
       END
