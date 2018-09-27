@@ -36,8 +36,10 @@ CF2PY INTENT(OUT) PMOM, EXT, SCA, ASY, VOL, IERR
       REAL*8  K, XSQUARED, XCUBED
       
       INTEGER I, J, L
-      REAL*8 TRAPZ, NORM
+      REAL*8 TRAPZ, NORM, GFACTOR
       EXTERNAL MIEDRV, TRAPZ
+      
+      
       
       PMOM = 0.0D0
       EXT = 0.0D0
@@ -82,6 +84,8 @@ C       Формируем матрицу для дальнейшего усре
       SCA = TRAPZ(X, SCATA, M) / NORM
       ASY = TRAPZ(X, ASYA, M) / NORM
       VOL = TRAPZ(X, VOLA, M) / NORM
+
+      
       
 C     Integrate over first dimension
       
@@ -92,6 +96,8 @@ C     Integrate over first dimension
   
         END DO
       END DO
+
+     
       IERR = 0
       RETURN
       END 

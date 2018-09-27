@@ -26,18 +26,46 @@ c
 c     RCS version control information:
 c     $Header: DISOTEST.f,v 2.1 2000/04/03 21:21:55 laszlo Exp $
 c     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-      SUBROUTINE  RUN(
-     I                 MAXCLY, DTAUC, SSALB, MAXMOM, TEMPER,       
-     I                 IPHAS, GG,
-     I                 WVNMLO, WVNMHI, USRTAU, MAXULV, UTAU, NSTR,
-     I                 USRANG, MAXUMU, UMU, MAXPHI, PHI, IBCND, FBEAM,
-     I                 UMU0, PHI0, FISOT, LAMBER, ALBEDO, BTEMP,
-     I                 TTEMP, TEMIS, PLANK, ONLYFL, ACCUR, PRNT,
-     O                 RFLDIR, RFLDN, FLUP, DFDT, UAVG, UU,
-     O                 ALBMED, TRNMED
-     &               )
+      SUBROUTINE  RUN_1(
+     I     MAXCLY, MAXMOM, MAXCMU,
+     I     MAXUMU, MAXPHI, MAXULV,
+     I     USRANG, USRTAU, IBCND, ONLYFL, PRNT,
+     I     PLANK, LAMBER, DELTAMPLUS, DO_PSEUDO_SPHERE,
+     I     DTAUC, SSALB, IPHAS, GG, TEMPER, WVNMLO, WVNMHI,
+     I     UTAU, UMU0, PHI0, UMU, PHI, FBEAM,
+     I     FISOT, ALBEDO, BTEMP, TTEMP, TEMIS,
+     I     EARTH_RADIUS, H_LYR,
+     O     RHOQ, RHOU, RHO_ACCURATE, BEMST, EMUST,
+     O     ACCUR, HEADER,
+     O     RFLDIR, RFLDN, FLUP, DFDT, UAVG, UU,
+     O     ALBMED, TRNMED)
+      IMPLICIT NONE
+      INTEGER MAXCLY, MAXMOM, MAXCMU, MAXUMU, MAXPHI, MAXULV, IBCND
+      LOGICAL USRANG, USRTAU, ONLYFL, PRNT(5), PLANK, LAMBER, DELTAMPLUS
+     $     , DO_PSEUDO_SPHERE
+      REAL    DTAUC( MAXCLY ), SSALB( MAXCLY ), PMOM( 0:MAXMOM, MAXCLY )
+     $     , TEMPER( 0:MAXCLY ), WVNMLO, WVNMHI, UTAU( MAXULV ), UMU0,
+     $     PHI0, UMU( MAXUMU ), PHI( MAXPHI ), FBEAM, FISOT, ALBEDO,
+     $     BTEMP, TTEMP, TEMIS, EARTH_RADIUS, H_LYR( 0:MAXCLY ),
+     $     RHOQ(MAXCMU/2, 0:MAXCMU/2, 0:(MAXCMU-1)),
+     $     RHOU(MAXUMU, 0:MAXCMU/2, 0:(MAXCMU-1)),
+     $     RHO_ACCURATE(MAXUMU, MAXPHI),
+     $     EMUST(MAXUMU), BEMST(MAXCMU/2),
+     $     ACCUR
+      CHARACTER HEADER*127
+      REAL RFLDIR( MAXULV ), RFLDN( MAXULV ), FLUP( MAXULV ),
+     $     DFDT( MAXULV ), UAVG( MAXULV ), UU( MAXUMU, MAXULV, MAXPHI ),
+     $     ALBMED( MAXUMU ), TRNMED( MAXUMU )
       
+CF2PY INTENT(IN) MAXCLY, MAXMOM, MAXCMU, MAXUMU, MAXPHI, MAXULV
+CF2PY INTENT(IN) USRANG, USRTAU, IBCND, ONLYFL, PRIN, PLANK,
+CF2PY INTENT(IN) LAMBER, DELTAMPLUS, DO_PSEUDO_SPHERE, DTAUC,
+CF2PY INTENT(IN) SSALB, PMOM, TEMPER, PHI, FBEAM, FISOT,
+CF2PY INTENT(IN) WVNMLO, WVNMHI, UTAU, UMU0, PHI0, UMU, 
+CF2PY INTENT(IN) ALBEDO, BTEMP, TTEMP, TEMIS, EARTH_RADIUS, H_LYR 
+CF2PY INTENT(OUT) RHOQ, RHOU, RHO_ACCURATE, BEMST, EMUST,
+CF2PY INTENT(OUT) ACCUR, HEADER, RFLDIR, RFLDN, FLUP, DFDT, UAVG,
+CF2PY INTENT(OUT) UU, ALBMED, TRNMED
      
 c    Runs test problems for DISORT and checks answers. These
 c    problems test almost all logical branches in DISORT.
@@ -97,41 +125,11 @@ c+---------------------------------------------------------------------+
 c
 c                 ** DISORT I/O specifications **
 
-C     F2PY INTENT(HIDE) :: MAXCLY, MAXUMU, MAXPHI, MAXULV
-C     F2PY INTENT(IN)   :: DTAUC, SSALB, TEMPER, MAXMOM
-C     F2PY INTENT(IN)   :: IPHAS, GG,
-C     F2PY INTENT(IN)   :: WVNMLO, WVNMHI, USRTAU, UTAU, NSTR
-C     F2PY INTENT(IN)   :: USRANG, UMU, PHI, IBCND, FBEAM
-C     F2PY INTENT(IN)   :: UMU0, PHI0, FISOT, LAMBER, ALBEDO, BTEMP
-C     F2PY INTENT(IN)   :: TTEMP, TEMIS, PLANK, ONLYFL, ACCUR, PRNT
-C     F2PY INTENT(OUT)  :: RFLDIR, RFLDN, FLUP, DFDT, UAVG, UU
-C     F2PY INTENT(OUT)  :: ALBMED, TRNMED
-      
-      INTEGER  MAXCLY, MAXULV, MAXUMU, MAXPHI
-      INTEGER  MAXMOM
-c$$       PARAMETER ( MAXMOM = 299)
-      CHARACTER  HEADER*127
-      LOGICAL  LAMBER, PLANK, ONLYFL, PRNT(5), USRANG, USRTAU
-      INTEGER  IBCND, NMOM, NLYR, NUMU, NSTR, NPHI, NTAU
-      REAL     ACCUR, ALBEDO, BTEMP, DTAUC( MAXCLY ), FBEAM, FISOT,
-     &         PHI( MAXPHI ), PMOM( 0:MAXMOM, MAXCLY ),
-     &         PHI0, SSALB( MAXCLY ), TEMPER( 0:MAXCLY ), TEMIS, TTEMP,
-     &         WVNMLO, WVNMHI, UMU( MAXUMU ), UMU0, UTAU( MAXULV )
-
-      REAL     RFLDIR( MAXULV ), RFLDN( MAXULV ), FLUP( MAXULV ),
-     &         DFDT( MAXULV ), UAVG( MAXULV ),
-     &         UU( MAXUMU, MAXULV, MAXPHI ), ALBMED( MAXUMU ),
-     &         TRNMED( MAXUMU )
-
       INTEGER  IPHAS( MAXCLY )
       REAL     GG( MAXCLY )
-
+      INTEGER  LC
 c+---------------------------------------------------------------------+
 
-      INTEGER  MXTAU, MXMU, MXPHI
-      PARAMETER     ( MXTAU = 5, MXMU = 32, MXPHI = 3 )
-      INTEGER       LC
-      REAL          PI
 
 c+---------------------------------------------------------------------+
 c     .. External Subroutines ..
@@ -143,27 +141,23 @@ c     .. Intrinsic Functions ..
       INTRINSIC ASIN, FLOAT, INDEX
 c     ..
 
-
-      PI = 2.* ASIN( 1.0 )
-
-      NLYR = MAXCLY
-      NMOM = NSTR
-      DO LC = 1, NLYR
-         CALL  GETMOM( IPHAS( LC ), GG( LC ), NMOM, PMOM(0,LC) )
+      DO LC = 1, MAXCLY
+         CALL  GETMOM( IPHAS( LC ), GG( LC ), MAXMOM, PMOM(0,LC) )
       END DO 
-      NTAU      = MAXULV
-      NPHI      = MAXPHI
-      NUMU      = MAXUMU
       HEADER = 'Python wrapper to the DISORT radiative transfer solver'
 
-      CALL  DISORT( NLYR, DTAUC, SSALB, NMOM, PMOM, TEMPER,
-     &                 WVNMLO, WVNMHI, USRTAU, NTAU, UTAU, NSTR,
-     &                 USRANG, NUMU, UMU, NPHI, PHI, IBCND, FBEAM,
-     &                 UMU0, PHI0, FISOT, LAMBER, ALBEDO, BTEMP,
-     &                 TTEMP, TEMIS, PLANK, ONLYFL, ACCUR, PRNT,
-     &                 HEADER, MAXCLY, MAXULV, MAXUMU, MAXPHI,
-     &                 MAXMOM, RFLDIR, RFLDN, FLUP, DFDT, UAVG, UU,
-     &                 ALBMED, TRNMED )
-
+      CALL DISORT( MAXCLY, MAXMOM, MAXCMU, 
+     &     MAXUMU, MAXPHI, MAXULV,
+     &     USRANG, USRTAU, IBCND, ONLYFL, PRNT,
+     &     PLANK, LAMBER, DELTAMPLUS, DO_PSEUDO_SPHERE,
+     &     DTAUC, SSALB, PMOM, TEMPER, WVNMLO, WVNMHI,
+     &     UTAU, UMU0, PHI0, UMU, PHI, FBEAM,
+     &     FISOT, ALBEDO, BTEMP, TTEMP, TEMIS,
+     &     EARTH_RADIUS, H_LYR, 
+     &     RHOQ, RHOU, RHO_ACCURATE, BEMST, EMUST,
+     &     ACCUR,  HEADER,
+     &     RFLDIR, RFLDN, FLUP, DFDT, UAVG, UU,
+     &     ALBMED, TRNMED )
       
+      RETURN
       END   

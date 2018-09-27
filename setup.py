@@ -6,19 +6,19 @@ ssrt = Extension(name='_ssrt',
                             'src/ssrt/GETMOM.f',
                             'src/ssrt/ErrPack.f'])
 
-# disort=Extension(name='_disort',
-#                 sources = ['src/disort/BDREF.f',
-#                             'src/disort/ErrPack.f',
-#                             'src/disort/GETMOM.f',
-#                             'src/disort/LINPAK.f',
-#                             'src/disort/PRTFIN.f',
-#                             'src/disort/RDI1MACH.f',
-#                             'src/disort/DISORT.f',
-#                             'src/disort/Driver.f'])
-
 disort=Extension(name='_disort',
-                sources = ['src/disort_new/code.f',
-                            'src/disort_new/Driver.f'])
+                sources = ['src/disort/BDREF.f',
+                            'src/disort/ErrPack.f',
+                            'src/disort/GETMOM.f',
+                            'src/disort/LINPAK.f',
+                            'src/disort/PRTFIN.f',
+                            'src/disort/RDI1MACH.f',
+                            'src/disort/DISORT.f',
+                            'src/disort/Driver.f'])
+
+# disort=Extension(name='_disort',
+#                sources = ['src/disort_new/code.f',
+#                            'src/disort_new/Driver_new.f'])
 
 
 rt3=Extension(name='_rt3',

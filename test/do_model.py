@@ -7,30 +7,30 @@ import matplotlib.pyplot as plt
 
 
 def main():
-	SZA=65
-	Rg = 0.1
+        SZA=0.1
+        Rg = 0.3
+        
+        Rt = rt3.RT3()
+        Rt.taum=0
+        Rt.sza = SZA
+        Rt.ground_albedo = Rg
+        Rt.run1()
+        mu, I, Q = Rt.mu, Rt.Iv, Rt.Qv
+        Rt.Iv /= np.pi
+        Rt.plotI()
+        
+        Rt.ground_albedo = 0	
+        Rt.run1()
+        mu, I0, Q0 = Rt.mu, Rt.Iv, Rt.Qv
+        Rt.Iv /= np.pi
+        Rt.plotI()
+        
 
-	Rt = rt3.RT3()
-	Rt.sza = SZA
-	Rt.ground_albedo = Rg
-
-	Rt.run()
-	mu, I, Q = Rt.mu, Rt.Iv, Rt.Qv
-
-	Rt.plotI()
-	
-	Rt.ground_albedo = 0	
-	Rt.run()
-	mu, I0, Q0 = Rt.mu, Rt.Iv, Rt.Qv
-	
-	Rt.plotI()
-	
-
-	plt.figure()
-	plt.plot(mu, I-I0, label='$\Delta L$')
-	plt.legend()
-	Rt.show()
-
+        plt.figure()
+        plt.plot(mu, I-I0, label='$\Delta L$')
+        plt.legend()
+        Rt.show()
+        
 
 if __name__ == '__main__':
 	main()

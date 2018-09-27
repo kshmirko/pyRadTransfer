@@ -1,9 +1,11 @@
 from _rt3 import run1, run2
 from numpy import cos, deg2rad, loadtxt, zeros, vstack, rad2deg, arccos, pi
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 class RT3:
-
+    
     def __init__(self, sza=40, nummu = 32, galbedo = 0.0):
         self.layf = 'atmos.lay'
         self.outf = 'rt3.out'
