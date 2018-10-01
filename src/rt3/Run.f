@@ -4,22 +4,22 @@ C NPTS  - количество точек табулирования функц�
 C NUMMU - количество углов для радиационного расчета [0-90]
 C DEG2RAD, RAD2DEG  - коэффициенты перевода градусов в радианы и обратно
 C X(NPTS), Y(NPTS)  - абсцисса и ордината функции распределения
-C WL, EXT, SCA, ASY, VOL  - длина волны и параметры распределения в 
+C WL, EXT, SCA, ASY, VOL  - длина волны и параметры распределения в
 C     приведении к единичной концентрации
 C     PMOM(0:NMOMS,4)     - коэффициенты лежвндра матрицы рассеяния
 C     MIDX                - показатель проеломления частицы
-C     
+C
       IMPLICIT NONE
       INTEGER NMOMS, NPTS, NUMMU, MAXMEAS
       REAL*8 DEG2RAD, RAD2DEG
-      PARAMETER(NMOMS=40, NPTS=101, NUMMU=32, 
+      PARAMETER(NMOMS=40, NPTS=101, NUMMU=32,
      .        DEG2RAD=0.017453292519943D0, RAD2DEG=1.0D0/DEG2RAD,
      .        MAXMEAS=20)
 
       REAL*8  X(NPTS), Y(NPTS), WL, PMOM(0:NMOMS, 4), EXT, SCA, ASY, VOL
       INTEGER IERR, IDSTR, I, NM, K
       COMPLEX*16  MIDX
-      REAL*8  SSA_A, R0, R1, P(1), TAUE_A, TAUE_M, SSAT, 
+      REAL*8  SSA_A, R0, R1, P(1), TAUE_A, TAUE_M, SSAT,
      .        EV_T(0:NMOMS, 6), DIRECT_FLUX, DIRECT_MU,
      .        GROUND_ALBEDO, SZA, EV_A(0:NMOMS,6), EV_R(0:NMOMS,6)
       CHARACTER*64  SCAT_FILE, LAYER_FILE, OUT_FILE, MEAS_FILE
@@ -29,7 +29,7 @@ C
       REAL*8  MU1(2*NUMMU), I1(2*NUMMU), Q1(2*NUMMU)
       REAL*8  I2(2*NUMMU), Q2(2*NUMMU), DL(2*NUMMU)
       REAL*8  AMEAS(MAXMEAS), IMEAS(MAXMEAS), QMEAS(MAXMEAS)
-      REAL*8  L0(2*NUMMU), L1(2*NUMMU), L(2*NUMMU), PA(2*NUMMU), 
+      REAL*8  L0(2*NUMMU), L1(2*NUMMU), L(2*NUMMU), PA(2*NUMMU),
      .        PM(2*NUMMU), PA1(2*NUMMU)
       INCLUDE 'GAUSCOEF.f'
       EXTERNAL DISTR, MKDSTRB, GETTAUM, MAKE_SCAT_FILE, MAKE_LAYER_FILE,
@@ -52,7 +52,7 @@ C     Fill X and Y with distribution function
       WL  = 0.750
 
 C     Calculates scattering matrix and coefficients
-      CALL DISTR(NPTS, X, Y, MIDX, WL, NMOMS, PMOM, EXT, SCA, ASY, 
+      CALL DISTR(NPTS, X, Y, MIDX, WL, NMOMS, PMOM, EXT, SCA, ASY,
      .                VOL, IERR)
 
       IF (IERR .NE. 0) THEN
@@ -83,11 +83,11 @@ C     Save layer file
 
 C     ******************************************************************
       MEAS_FILE = 'meas.dat'
-C     Приведем измерения к единой сетке      
+C     Приведем измерения к единой сетке
       CALL READ_MEAS_FILE(MEAS_FILE, MAXMEAS, AMEAS, IMEAS, QMEAS, NM)
       AMEAS = COS(AMEAS*0.017453292519943)
- 
-      CALL PWL_VALUE_1D ( NM, AMEAS(NM:1:-1), IMEAS(NM:1:-1), 2*NUMMU, 
+
+      CALL PWL_VALUE_1D ( NM, AMEAS(NM:1:-1), IMEAS(NM:1:-1), 2*NUMMU,
      .                    XI, I2, 0.0D0, 0.0D0 )
 
 C     Подготовка к расчету
@@ -107,14 +107,14 @@ C     Create scattering file
 
 
       GROUND_ALBEDO = 0.0
-      CALL RUNRT3(LAYER_FILE, OUT_FILE, WL, DIRECT_FLUX, DIRECT_MU, 
-     .               QUAD_TYPE, DELTAM, GROUND_ALBEDO, NUMMU, 
+      CALL RUNRT3(LAYER_FILE, OUT_FILE, WL, DIRECT_FLUX, DIRECT_MU,
+     .               QUAD_TYPE, DELTAM, GROUND_ALBEDO, NUMMU,
      .               MU0, I0, Q0)
 
 
       GROUND_ALBEDO = 0.3
-      CALL RUNRT3(LAYER_FILE, OUT_FILE, WL, DIRECT_FLUX, DIRECT_MU, 
-     .               QUAD_TYPE, DELTAM, GROUND_ALBEDO, NUMMU, 
+      CALL RUNRT3(LAYER_FILE, OUT_FILE, WL, DIRECT_FLUX, DIRECT_MU,
+     .               QUAD_TYPE, DELTAM, GROUND_ALBEDO, NUMMU,
      .               MU1, I1, Q1)
 
 
@@ -140,10 +140,10 @@ C     Convert degrees to cosines
 C     Интерполируем на узлы гауссовой сетки наши измерения и результаты расчета
 
 
-      CALL PWL_VALUE_1D ( 2*NUMMU, MU0, I0, 2*NUMMU, 
+      CALL PWL_VALUE_1D ( 2*NUMMU, MU0, I0, 2*NUMMU,
      .                    XI, L0, 0.0D0, 0.0D0 )
 
-      CALL PWL_VALUE_1D ( 2*NUMMU, MU0, I1, 2*NUMMU, 
+      CALL PWL_VALUE_1D ( 2*NUMMU, MU0, I1, 2*NUMMU,
      .                    XI, L1, 0.0D0, 0.0D0 )
 
 
@@ -156,7 +156,7 @@ C     DL - вклад подстилающей поверхности
      .              TAUE_M*PM(I)/(SSA_A*TAUE_A)
           PRINT *, L0(I)
         ENDIF
-        
+
       ENDDO
 
       PRINT "('W(',I2,')',F10.6)", K, SUM(PA1*WEIGHT)
@@ -164,15 +164,4 @@ C     DL - вклад подстилающей поверхности
       ENDDO
       RETURN
       END
-
-
-      SUBROUTINE CHANGE_DEG(N, ANG, SZA)
-      IMPLICIT NONE
-      INTEGER N, I
-      REAL*8  ANG(N), SZA
-
-      DO I=1, N
-        ANG(I) = SZA-ANG(I)
-      ENDDO
-
-      END
+      

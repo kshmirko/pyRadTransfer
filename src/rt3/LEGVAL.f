@@ -22,8 +22,11 @@ C     COEF - LEGENDRE COEFFICIENTS, I.E. (2*i+1)Pm
       RETURN
       END
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C     ------------------------------------------------------------------
 C     SAME AS ABOVE, BUT X IS A VECTOR
+C     EVALUATE LEGENDTE POLYNOMIAL FOR GIVEN POINTS X(N) AND PUT THE
+C     RESULT INTO Y(N)
+C     ------------------------------------------------------------------
       SUBROUTINE LEGVAL_A(M, COEF, N, X, Y)
       IMPLICIT NONE
       
